@@ -1,0 +1,17 @@
+table, td{
+    border: 3px solid black;
+    border-collapse: collapse;
+}
+
+table {
+    width: 70%;
+}
+
+td {
+    height: 50px;
+    text-align: center;
+}
+#board {
+    margin-left: 300px;
+    margin-top: 60px;
+}
