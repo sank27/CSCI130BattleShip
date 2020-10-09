@@ -1,17 +1,21 @@
-table, td{
-    border: 3px solid black;
-    border-collapse: collapse;
-}
-
-table {
-    width: 70%;
-}
-
-td {
-    height: 50px;
-    text-align: center;
-}
 #board {
     margin-left: 300px;
     margin-top: 60px;
+}
+
+
+
+table {
+    width: 70%;
+    border-collapse: collapse;
+}
+
+thead, th {
+    border: none;
+}
+
+td {
+    border: 3px solid black;
+    height: 50px;
+    text-align: center;
 }
