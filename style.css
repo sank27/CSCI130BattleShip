@@ -1,12 +1,16 @@
-#board {
-    margin-left: 300px;
-    margin-top: 60px;
+
+#user-board {
+    margin-left: 60px;
+    float: left;
 }
 
-
+#action-board {
+   float: right;
+   margin-right: 60px;
+}
 
 table {
-    width: 70%;
+    width: 500px;
     border-collapse: collapse;
 }
 
@@ -16,6 +20,5 @@ thead, th {
 
 td {
     border: 3px solid black;
-    height: 50px;
-    text-align: center;
+    height: 30px;
 }
