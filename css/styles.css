@@ -1,0 +1,43 @@
+table, tr, td {
+    border: 2px solid #000;
+}
+
+#player-table {
+    margin: 0 auto;
+}
+
+.cell {
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    font-size: 40px;
+    color: #fff;
+}
+
+.single-available-ship .cell {
+    display: inline;
+    background-color: gray;
+    width: 30px;
+    height: 30px;
+    color: #fff;
+}
+
+.available-ship {
+    text-align: center;
+    cursor: pointer;
+}
+
+#selected-ship {
+    margin-left: 10px;
+    margin-top: 15px;
+    font-size: 20px;
+}
+
+.direction-choice {
+    border: 1px solid #ddd;
+}
+
+.direction-choice .form-check {
+    margin-left: 5px;
+    font-size: 14px;
+}
