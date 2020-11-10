@@ -11,8 +11,21 @@ function login() {
         {
             login,
             password
-        },function(data, status){
-            console.log(data);
-            console.log(status);
-        });
+        }, function (data, status) {
+            if (data.status == 200) {
+                //display success
+                $('#loginForm').hide();
+                $('.response').hide();
+                $('.success').show();
+
+                //redirect to internal pages
+                setTimeout(function () {
+                    window.location.replace("battleship.php");
+                }, 3000);
+
+            } else {
+                $('.response').addClass('alert alert-danger');
+                $('.response').html(data.data);
+            }
+        }, 'json');
 }

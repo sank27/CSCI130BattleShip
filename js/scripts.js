@@ -20,9 +20,31 @@ const staticShips = [
 	{order: 5, id: "patrolboat", name: "Patrol Boat", abbr:"P", size: 2, row: 0, column: 0, direction: '', slots: []},
 ]
 
-const ships = []
+let ships = [];
 const placedShips = [];
 const destroyedShips = [];
+
+$(document).ready(function() {
+	try {
+		buildGrid();
+		getShips();
+		displayAvailableShips();
+		displayPlacedShips();
+		resetForm();
+
+		$(document).on('click', '.available-ship', function (e) {
+			selectShip(e)
+		});
+		$(document).on('click', '.addCell', function (e) {
+			addShipToGrid(e)
+		});
+		$(document).on('click', '.removeCell', function (e) {
+			removeShipFromGrid(e)
+		});
+	}catch(e){
+		console.log(e);
+	}
+});
 
 function buildGrid(){
 	$('#player-table').html('');
@@ -39,6 +61,13 @@ function buildGrid(){
 	const gridString = grid.join(' ');
 
 	$('#player-table').html(gridString);
+}
+
+function getShips() {
+	//get the ships from the backend
+
+	//if there are no ships put in all the ships
+	ships = staticShips;
 }
 
 //
@@ -229,13 +258,3 @@ function resetShips(){
 }
 
 
-$(document).ready(function() {
-	buildGrid();
-	displayAvailableShips();
-	displayPlacedShips();
-	resetForm();
-
-	$(document).on('click', '.available-ship',function(e){ selectShip(e) });
-	$(document).on('click', '.addCell', function(e){ addShipToGrid(e)});
-	$(document).on('click', '.removeCell', function(e){ removeShipFromGrid(e)});
-});

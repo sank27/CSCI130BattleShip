@@ -1,5 +1,10 @@
 <?php
+include_once('components/functions.php');
+$additionalCss = array('css/universal.css','css/styles.css');
+echo includeHeader($additionalCss);
+include_once('components/auth.php');
 include_once('components/header.php');
+//decided to separate the header from the other pieces
 ?>
 <div class="container">
     <div class="row">
@@ -60,5 +65,6 @@ include_once('components/header.php');
 </div>
 
 <?php
-    include_once('components/footer.php');
+    $additionalJs = array('js/scripts.js');
+    echo includeFooter($additionalJs);
 ?>
