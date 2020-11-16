@@ -1,9 +1,7 @@
 <?php
 include_once ('db.php');
-
 ob_start();
 session_start();
-
 define('USER_TABLE', '`users`');
 
 class User {
@@ -60,8 +58,13 @@ class User {
             $_SESSION['user'] = $row['username'];
             $_SESSION['userid'] = $row['id'];
 
+            $newUser = new stdClass();
+            $newUser->userId = $row['id'];
+            $newUser->userName = $row['username'];
+
             $response->status = 200;
-            $response->data = "Successfully logged in";
+            $response->data = $newUser;
+            $response->message = "Successfully logged in";
         }catch(Exception $e){
             $response->status = 422;
             $response->data = $e->getMessage();

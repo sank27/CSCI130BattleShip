@@ -18,11 +18,13 @@ function login() {
                 $('.response').hide();
                 $('.success').show();
 
+                //save the user to the localstorage
+                localStorage.setItem('battleuser', JSON.stringify(data.data));
+
                 //redirect to internal pages
                 setTimeout(function () {
-                    window.location.replace("battleship.php");
+                    window.location.replace("home.php");
                 }, 3000);
-
             } else {
                 $('.response').addClass('alert alert-danger');
                 $('.response').html(data.data);

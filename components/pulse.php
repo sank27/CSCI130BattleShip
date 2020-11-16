@@ -2,6 +2,16 @@
 include_once ('db.php');
 define('PULSE_TABLE', '`pulse`');
 
+class PulsePlayer {
+    public $id;
+    public $player;
+
+    public function __construct($userid, $username){
+        $this->id = $userid;
+        $this->player = $username;
+    }
+}
+
 class Pulse {
     public static function HeartBeat(){
         //get the user
@@ -25,6 +35,48 @@ class Pulse {
             $stmt->bind_param("is", $userId, $user);
             $stmt->execute();
         }
+    }
+
+    public static function GetPlayers() {
+        $response = new stdClass();
+        $userId = !empty($_SESSION['userid']) ? $_SESSION['userid'] : '';
+
+        $db = Database::getConnection();
+        if ($db->connect_error){
+            //add some logging here
+            return;
+        }
+
+        try {
+            $response->status = 200;
+
+            $players = array();
+
+            $query = "SELECT user_id, player FROM " . PULSE_TABLE . " WHERE user_id <> ?";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($user_id, $player);
+
+            if($stmt->num_rows() == 0) { //if we have results display them
+                $response->data = $players;
+            }else{
+                $includedGroups = array();
+                while ($stmt->fetch()) {
+                    //write any records to the array of objects
+                    $singlePlayer = new PulsePlayer($user_id, $player);
+                    //let's get our distinct records
+                    array_push($players,$singlePlayer);
+                }
+                $stmt->free_result();
+                $response->data = $players;
+            }
+        }catch(Exception $e){
+            $response->status = 422;
+            $response->data = $e->getMessage();
+        }
+        return $response;
     }
 
     public static function Clear(){

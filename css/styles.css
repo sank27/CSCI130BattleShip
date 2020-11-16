@@ -7,11 +7,15 @@ table, tr, td {
 }
 
 .cell {
-    width: 70px;
-    height: 70px;
+    width: 25px;
+    height: 25px;
     text-align: center;
-    font-size: 40px;
+    font-size: 14px;
     color: #fff;
+}
+
+#available-ships {
+    min-height: 250px;
 }
 
 .single-available-ship .cell {
@@ -33,11 +37,25 @@ table, tr, td {
     font-size: 20px;
 }
 
+#selected-ship {
+    min-height: 30px;
+}
+
 .direction-choice {
+    position: relative;
     border: 1px solid #ddd;
+    min-height: 70px;
 }
 
 .direction-choice .form-check {
     margin-left: 5px;
     font-size: 14px;
+}
+
+.singleOpponent {
+    width: 150px;
+}
+
+.user-image {
+    width: 150px;
 }
