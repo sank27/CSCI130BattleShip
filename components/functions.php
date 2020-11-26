@@ -1,5 +1,5 @@
 <?php
-DEFINE('VERSION', 1.4);
+DEFINE('VERSION', 1.5);
 function includeHeader($additionalFiles = array())
 {
     $addFileList = '';

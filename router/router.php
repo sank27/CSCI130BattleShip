@@ -3,6 +3,7 @@ include_once('../components/user.php');
 include_once('../components/pulse.php');
 include_once('../components/game.php');
 include_once('../components/request.php');
+include_once('../components/attack.php');
 
 class RouterResponse {
     public $status;
@@ -117,6 +118,9 @@ if (!empty($request)) {
             case CHECKMYREQUESTS:
                 $gameCheck = Request::GetRequests();
                 $response = new RouterResponse($gameCheck->status, $gameCheck->data, $gameCheck->message);
+                break;
+            case ATTACKOPPONENT:
+
                 break;
             default:
                 $response = $notLoggedInResponse;

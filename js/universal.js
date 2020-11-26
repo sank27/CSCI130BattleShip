@@ -11,6 +11,7 @@ const currentPlayer = userJSON ? JSON.parse(userJSON) : {};
 //check if there is a new game if not create a new game
 let currentGame = '';
 let currentTurn = 0;
+let gameStarted = false;
 let currentOpponent = 0;
 
 const DIRECTIONS = {

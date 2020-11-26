@@ -24,7 +24,7 @@ CREATE TABLE `games` (
   `created` datetime DEFAULT current_timestamp(),
   `finished` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `players` */
 
@@ -36,7 +36,7 @@ CREATE TABLE `players` (
   `player_id` int(20) DEFAULT NULL,
   `created` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `pulse` */
 
@@ -46,9 +46,9 @@ CREATE TABLE `pulse` (
   `id` int(30) NOT NULL AUTO_INCREMENT,
   `user_id` int(20) DEFAULT NULL,
   `player` varchar(128) DEFAULT NULL,
-  `created` datetime DEFAULT current_timestamp(),
+  `created` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `request` */
 
@@ -62,7 +62,7 @@ CREATE TABLE `request` (
   `created` datetime DEFAULT current_timestamp(),
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ships` */
 
@@ -73,7 +73,8 @@ CREATE TABLE `ships` (
   `game_id` int(11) DEFAULT NULL,
   `player_id` int(11) DEFAULT NULL,
   `ships` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `pk_game_player` (`game_id`,`player_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `users` */
@@ -84,7 +85,8 @@ CREATE TABLE `users` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `username` varchar(128) DEFAULT NULL,
   `hashedPassword` varchar(256) DEFAULT NULL,
-  `created` datetime current_timestamp(),
+  `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+

@@ -36,8 +36,9 @@ include_once('components/header.php');
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-4">
+                        <div class="mt-4 text-center">
                             <button class="removeShips btn btn-danger">Remove Ship(s)</button>
+                            <button class="gameStart btn btn-success mt-4 text-center">Start Game</button>
                         </div>
                     </div>
                 </div>
@@ -46,17 +47,15 @@ include_once('components/header.php');
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-6" id="enemy-board">
             <h4 class="text-center">Enemy Board</h4>
             <div class="row">
-                <div class="col">
-                    <div class="col-8">
-                        <table id="enemy-table"></table>
-                    </div>
-                    <div class="col-4">
-                        <div id="game-start">
-                            <div id="available-attacks" class="list-group">
-                            </div>
+                <div class="col-8">
+                    <table id="enemy-table"></table>
+                </div>
+                <div class="col-4">
+                    <div id="game-start">
+                        <div id="available-attacks" class="list-group">
                         </div>
                     </div>
                 </div>

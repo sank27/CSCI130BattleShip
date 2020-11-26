@@ -210,6 +210,8 @@ function initializePlayerBoard() {
     }
 }
 
+//one there are no ships to add to the board, show the start game button
+
 $(document).ready(function() {
     //wait for the gameid to be populated
     let existCondition = setInterval(function() {
