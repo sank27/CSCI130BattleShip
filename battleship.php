@@ -8,7 +8,7 @@ include_once('components/header.php');
 ?>
 <div class="container">
     <div class="row">
-        <div class="col-6">
+        <div class="col-6" id="player-board">
             <h4 class="text-center">Player Board</h4>
             <div class="row">
                 <div class="col-4">
