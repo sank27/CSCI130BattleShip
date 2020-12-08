@@ -97,6 +97,11 @@ function addShipToGrid(e){
     selectedShip = '';
     canPlaceShips = false;
     resetForm();
+
+    //if there are no more ships, show the game start button
+    if (ships.length ==0) {
+        $('.gameStart').show();
+    }
 }
 
 function getShipSlots(row, column, direction) {
@@ -179,6 +184,48 @@ function showMessage(message){
     $('#shipModal').modal('show')
 }
 
+function hidePlayerBoard() {
+    $('#player-board').fadeTo('slow',.6);
+    $('#player-board').append('<div id="hide-player-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
+    $('#game-start').remove();
+}
+
+function startGame() {
+    //disable the player board and remove the buttons
+    hidePlayerBoard();
+    //push the ships to the database
+
+    $.post(`${routerEndPoint}saveships`,
+        {
+            gameId: currentGame,
+            ships: JSON.stringify(placedShips),
+        }, function (data, status) {
+            if (data.status == 200) {
+                //display waiting message
+                showMessage("Thank you! Waiting on other player to start game.", MESSAGETYPE.POSITIVE);
+                //start the waiting timer
+                gameCheckStart = new Date();
+                gameCheckEnd =  new Date();
+                gameCheckEnd.setSeconds(gameCheckStart.getSeconds() + gameCheckEndTime);
+                gameStartInterval = setInterval(gameCheck, responseCheck * 1000);
+            } else {
+                showMessage(data.data, MESSAGETYPE.NEGATIVE);
+            }
+        }, 'json');
+
+
+    //ship - shipcheck
+    //if both ships are in the database, start the game
+
+    //once the game it started, create a timer to
+    //randomly pick a player
+    //inform the player
+}
+
+function continueGame(){
+    hidePlayerBoard();
+}
+
 function removeShipFromGrid(){
     ships = staticShips;
     placedShips = [];
@@ -213,6 +260,13 @@ function initializePlayerBoard() {
 //one there are no ships to add to the board, show the start game button
 
 $(document).ready(function() {
+    //hide the game start button
+    $('.gameStart').hide();
+
+    $('.gameStart').click(() => {
+        startGame();
+    });
+
     //wait for the gameid to be populated
     let existCondition = setInterval(function() {
         if (currentGame && currentGame > 0) {

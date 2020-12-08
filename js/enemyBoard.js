@@ -79,7 +79,7 @@ function handleAttackClick(e){
     console.log(currentGame);
 }
 
-function hideBoard(){
+function hideEnemyBoard(){
     $('#enemy-board').fadeTo('slow',.6);
     $('#enemy-board').append('<div id="hide-enemy-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
 }
@@ -114,5 +114,5 @@ $(document).ready(function() {
         }
     }, 100); // check every 100ms
 
-    hideBoard();
+    hideEnemyBoard();
 });

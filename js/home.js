@@ -1,6 +1,7 @@
-const responseCheck = 5; //this is in seconds
-const lastCheck = 180; //this is in seconds
+const lastCheck = 300; //this is in seconds
 const successfulResponse = false;
+
+const playerCheck = 5; //this is in seconds
 
 let currentRequest = 0
 let requestedOpponent = 0;
@@ -11,6 +12,31 @@ let checkInterval = null;
 
 let incomingRequest = 0;
 let incomingInterval = null;
+
+let playerInterval = null;
+
+function checkForExistingRequests(){
+    //this checks to see if there are any existing requests
+    $.get(`${routerEndPoint}checkexistingrequests`,(data)=> {
+        if (data.status == 200) {
+            if (data.data.id != false) {
+                currentRequest = data.data.id;
+                requestedOpponent = data.data.requestee;
+                $('.request').prop('disabled', true);
+                //start checking the responses
+                //get the date from the backend and add some many seconds
+                const dateTimeParts = data.data.created.split(/[- :]/);
+                dateTimeParts[1]--; // monthIndex begins with 0 for January and ends with 11 for December so we need to decrement by one
+                checkStartDate = new Date(...dateTimeParts);
+                checkEndTime = new Date(...dateTimeParts);
+                checkEndTime.setSeconds(checkStartDate.getSeconds() + lastCheck);
+                checkInterval = setInterval(checkResponse, responseCheck * 1000);
+            }
+        }else{
+            showMessage(data.message);
+        }
+    },'json')
+}
 
 //get the opponents
 function getAvailableOpponents(){
@@ -24,11 +50,12 @@ function getAvailableOpponents(){
 function displayOpponents() {
     $('#opponents').html('');
     opponents.forEach(x => {
+        const isDisabled = requestedOpponent ? 'disabled' : '';
         const newOpponent = `<div class="card singleOpponent" id="${x.id}">
                             <img src="assets/user.png" class="card-img-top user-image" alt="User Image">
                             <div class="card-body">
                                 <h5 class="card-title">${x.player}</h5>
-                                <button id="${x.id}" class="btn btn-primary request">Request</button>
+                                <button id="${x.id}" class="btn btn-primary request" ${isDisabled}>Request</button>
                             </div>
                         </div>`;
         $('#opponents').append(newOpponent);
@@ -80,6 +107,8 @@ function checkResponse(){
     if (rightNow >= checkEndTime){
         clearInterval(checkInterval);
         showMessage("No response from other player...try again.");
+        $.post(`${routerEndPoint}cleanuprequest`, {requestid: currentRequest});
+        requestedOpponent = 0;
         currentRequest = 0;
         $('.request').prop('disabled', false);
         return;
@@ -100,6 +129,9 @@ function checkResponse(){
             }else {
                 clearInterval(checkInterval);
                 showMessage("Sorry, other player declined...try again.");
+                //clean up the sql
+                $.post(`${routerEndPoint}cleanuprequest`, {requestid: currentRequest});
+                requestedOpponent = 0;
                 currentRequest = 0;
                 $('.request').prop('disabled', false);
             }
@@ -121,11 +153,11 @@ function createGame(){
 }
 
 function checkIncomingRequests(){
-    $.post(`${routerEndPoint}checkmyrequests`, (data) => {
+    $.get(`${routerEndPoint}checkmyrequests`, (data) => {
         if(data.status == 200) {
             if (data.data && data.data.id){
                 //get the request id and user
-                incomingRequest = data.data.request;
+                incomingRequest = data.data.id;
                 showIncomingRequest(data.data.user);
 
                 //pause the intervals
@@ -139,23 +171,43 @@ function checkIncomingRequests(){
     }, 'json');
 }
 
+function checkForPlayers() {
+    playerInterval = setInterval(getAvailableOpponents, playerCheck * 1000);
+}
+
 function showIncomingRequest($requestor){
     //show the incoming request with a yes or no button
-    alert('incoming request display');
+    $('#game-requestor').html($requestor);
+    $('#approvedeclineModal').modal('show');
 }
 
 function declineIncomingRequest(){
     //decline the request
-
-    //restart the interval
-    incomingInterval = setInterval(checkIncomingRequests, responseCheck * 1000);
+    $('#approvedeclineModal').modal('hide');
+    $.post(`${routerEndPoint}declinegamerequest`, {requestid: incomingRequest}, (data) => {
+        if(data.status == 200) {
+            showMessage(data.message);
+            requestedOpponent = 0;
+            incomingRequest = 0;
+            //enable the buttons
+            $('.request').prop('disabled', false);
+            //restart the interval
+            incomingInterval = setInterval(checkIncomingRequests, responseCheck * 1000);
+        }else{
+            showMessage(data.message);
+        }
+    },'json');
 }
 
 function approveIncomingRequest(){
-    //make sure the request is still valid
-
-    //cancel any send requests
-
+    $('#approvedeclineModal').modal('hide');
+    $.post(`${routerEndPoint}acceptgamerequest`, {requestid: incomingRequest}, (data) => {
+        if(data.status == 200) {
+            setTimeout(() => {  checkForExistingGames(); }, 2000);
+        }else{
+            showMessage(data.message);
+        }
+    },'json');
 }
 
 function checkForExistingGames() {
@@ -181,7 +233,18 @@ $(document).on("click",".request", function(e){
     makeRequest(e.target.id);
 });
 
+$(document).on("click", "#accept-game", function(){
+    approveIncomingRequest();
+});
+
+$(document).on("click", "#decline-game", function(){
+    declineIncomingRequest();
+});
+
 checkForExistingGames();
+checkForPlayers();
+checkForExistingRequests();
+
 
 
 

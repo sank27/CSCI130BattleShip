@@ -32,13 +32,28 @@ class Ship {
             $stmt->bind_param("iis", $gameId, $userId, $ships);
             $stmt->execute();
 
+            //check to see if the other player has their ships
+
+            $query = "SELECT * FROM " . SHIP_TABLE . " WHERE `game_id` = ? AND `player_id` <> ? LIMIT 1";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("ii", $gameId, $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+
+            if (!empty($row['id'])) { //the other player has submitted their ships, let's start the game
+                game::StartGame($gameId);
+            }
+
+            //we don't do anything from here, the frontend will see if the game has started
+
             $response->status = 200;
             $response->data = '';
             $response->message = "Ships added/updatedSuccessfully successfully.";
         }catch(Exception $e){
             $response->status = 422;
             $response->data = '';
-            $response->data = $e->getMessage();
+            $response->message = $e->getMessage();
         }
         return $response;
     }
@@ -85,7 +100,7 @@ class Ship {
         }catch(Exception $e){
             $response->status = 422;
             $response->data = '';
-            $response->data = $e->getMessage();
+            $response->message = $e->getMessage();
         }
         return $response;
     }

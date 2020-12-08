@@ -48,6 +48,111 @@ class Game {
         return $response;
     }
 
+    public static function StartGame($gameId){
+        $response = new stdClass();
+        //make sure we have an opponent
+        if (empty($gameId)){
+            $response->status = 400;
+            $response->data = '';
+            $response->message = "Invalid Game Id";
+            return $response;
+        }
+
+
+        $db = Database::getConnection();
+        if ($db->connect_error){
+            $response->status = 404;
+            $response->data = '';
+            $response->message = "Problem with database";
+            return $response;
+        }
+
+        try {
+            //get the 2 player ids
+            $query = "SELECT player_id FROM " . PLAYER_TABLE . " WHERE `game_id` = ?";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("i", $gameId);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($player_id);
+
+            $players = array();
+
+            if($stmt->num_rows() == 0) { //if we do not have any players something is wrong....
+                throw new Exception("Missing player information for game...");
+            }else{
+                $includedGroups = array();
+                while ($stmt->fetch()) {
+                    array_push($players, $player_id);
+                }
+                $stmt->free_result();
+            }
+
+            //pick one of the 2 players to start with
+            $starting_player = array_rand($players, 1);
+
+            //update the game to start it and set the player
+            $query = "UPDATE " . GAME_TABLE . " SET `started` = ? AND `turn` = ? WHERE `id` = ?";
+            $stmt = $db->prepare($query);
+            $gameStart = true;
+            $stmt->bind_param("iii", $gameStart, $starting_player, $gameId);
+            $stmt->execute();
+
+            //Send a successful response
+            $response->status = 200;
+            $response->data = '';
+            $response->message = 'Game successfully created';
+        }catch(Exception $e){
+            $response->status = 422;
+            $response->data = '';
+            $response->message = $e->getMessage();
+        }
+        return $response;
+    }
+
+    public static function CheckGameStart($gameId){
+        $response = new stdClass();
+        //make sure we have an opponent
+        if (empty($gameId)){
+            $response->status = 400;
+            $response->data = '';
+            $response->message = "Invalid Game Id";
+            return $response;
+        }
+
+        $db = Database::getConnection();
+        if ($db->connect_error){
+            $response->status = 404;
+            $response->data = '';
+            $response->message = "Problem with database";
+            return $response;
+        }
+
+        try {
+            //get the 2 player ids
+            $query = "SELECT started FROM " . GAME_TABLE . " WHERE `id` = ?";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("i", $gameId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+
+            //Send a successful response
+            $response->status = 200;
+            $response->data = $row['started'];
+            $response->message = 'Game check successful';
+        }catch(Exception $e){
+            $response->status = 422;
+            $response->data = '';
+            $response->message = $e->getMessage();
+        }
+        return $response;
+    }
+
+    public static function DoTurn($gameId){
+
+    }
+
     public static function CreateGame($opponentId)
     {
         $response = new stdClass();
@@ -59,7 +164,6 @@ class Game {
             return $response;
         }
 
-        $userId = !empty($_SESSION['userid']) ? $_SESSION['userid'] : '';
         $db = Database::getConnection();
         if ($db->connect_error){
             $response->status = 404;
