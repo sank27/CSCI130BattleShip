@@ -1,7 +1,6 @@
 <?php
 include_once('components/functions.php');
-$additionalCss = array('css/universal.css','css/styles.css');
-echo includeHeader($additionalCss);
+echo includeHeader();
 include_once('components/auth.php');
 include_once('components/header.php');
 //decided to separate the header from the other pieces
@@ -54,7 +53,7 @@ include_once('components/header.php');
                     <table id="enemy-table"></table>
                 </div>
                 <div class="col-4">
-                    <div id="game-start">
+                    <div>
                         <div id="available-attacks" class="list-group">
                         </div>
                     </div>
@@ -62,7 +61,23 @@ include_once('components/header.php');
             </div>
         </div>
     </div>
-
+    <div class="row">
+        <div class="col text-left">
+            <h4>Turn Management:</h4>
+            <h6 id="turn-placement"></h6>
+        </div>
+        <div class="col text-right">
+            <h4>Game State:</h4>
+            <h6 id="game-started-text"></h6>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5>Game Log:</h5>
+            <div id="attack_log">
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="shipModal" class="modal" tabindex="-1" role="dialog">
@@ -76,6 +91,25 @@ include_once('components/header.php');
             </div>
             <div class="modal-body">
                 <div class="" id="message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gameOver" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Game Over</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success" id="game-over-message"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

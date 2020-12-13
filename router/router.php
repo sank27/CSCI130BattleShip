@@ -5,6 +5,7 @@ include_once('../components/game.php');
 include_once('../components/request.php');
 include_once('../components/attack.php');
 include_once('../components/ship.php');
+include_once('../components/gamelog.php');
 
 class RouterResponse
 {
@@ -58,6 +59,9 @@ DEFINE('ATTACKOPPONENT', 'attackopponent');
 
 //deal with turns????
 DEFINE('GETTURN', 'getturn');
+
+DEFINE('GETMESSAGES','getmessages');
+DEFINE('BIGATTACK','bigattack');
 
 $postInfo = $_POST;
 $request = !empty($_GET['request']) ? $_GET['request'] : '';
@@ -156,14 +160,43 @@ if (!empty($request)) {
                 $saveShips = Ship::SaveShips($gameId, $ships);
                 $response = new RouterResponse($saveShips->status, $saveShips->data, $saveShips->message);
                 break;
+            case GETSHIPS:
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $getShips = Ship::GetShips($gameId);
+                $response = new RouterResponse($getShips->status, $getShips->data, $getShips->message);
+                break;
             case ATTACKOPPONENT:
-
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $attack = !empty($_POST['attack']) ? trim($_POST['attack']) : '';
+                $saveAttack = Attack::SaveAttack($gameId, $attack);
+                $response = new RouterResponse($saveAttack->status, $saveAttack->data, $saveAttack->message);
+                break;
+            case BIGATTACK:
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $attack = !empty($_POST['attack']) ? trim($_POST['attack']) : '';
+                $bigAttack = Attack::BigAttack($gameId, $attack);
+                $response = new RouterResponse($bigAttack->status, $bigAttack->data, $bigAttack->message);
+                break;
+            case GETATTACKS:
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $getAttacks = Attack::GetAttacks($gameId);
+                $response = new RouterResponse($getAttacks->status, $getAttacks->data, $getAttacks->message);
                 break;
             case CHECKGAME:
                 //see if the game has started after ships submitted
                 $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
                 $gameCheck = Game::CheckGameStart($gameId);
                 $response = new RouterResponse($gameCheck->status, $gameCheck->data, $gameCheck->message);
+                break;
+            case GETTURN:
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $turnCheck = Game::TurnCheck($gameId);
+                $response = new RouterResponse($turnCheck->status, $turnCheck->data, $turnCheck->message);
+                break;
+            case GETMESSAGES:
+                $gameId = !empty($_POST['gameId']) ? trim($_POST['gameId']) : '';
+                $messages = GameLog::GetGameLog($gameId);
+                $response = new RouterResponse($messages->status, $messages->data, $messages->message);
                 break;
             default:
                 $response = $notLoggedInResponse;

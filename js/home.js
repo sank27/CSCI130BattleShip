@@ -203,7 +203,7 @@ function approveIncomingRequest(){
     $('#approvedeclineModal').modal('hide');
     $.post(`${routerEndPoint}acceptgamerequest`, {requestid: incomingRequest}, (data) => {
         if(data.status == 200) {
-            setTimeout(() => {  checkForExistingGames(); }, 2000);
+            setTimeout(() => {  checkForExistingGames(); }, 5000);
         }else{
             showMessage(data.message);
         }

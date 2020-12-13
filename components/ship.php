@@ -42,7 +42,7 @@ class Ship {
             $row = $result->fetch_assoc();
 
             if (!empty($row['id'])) { //the other player has submitted their ships, let's start the game
-                game::StartGame($gameId);
+                Game::StartGame($gameId);
             }
 
             //we don't do anything from here, the frontend will see if the game has started
@@ -103,38 +103,6 @@ class Ship {
             $response->message = $e->getMessage();
         }
         return $response;
-    }
-
-    public static function GetShipsInternal($gameId){
-        //no response, just return the json
-        $db = Database::getConnection();
-        if ($db->connect_error){
-            return '';
-        }
-
-        try {
-            //get the current user
-            $userId = !empty($_SESSION['userid']) ? $_SESSION['userid'] : '';
-
-            $returnedShips = '';
-            $query = "SELECT ships FROM " . SHIP_TABLE . " WHERE game_id = ? AND player_id != ?;";
-            $stmt = $db->prepare($query);
-            $stmt->bind_param("ii", $gameId, $userId);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($ships);
-
-            if($stmt->num_rows() == 0) { //if we have results display them
-                $returnedShips = '';
-            }else{
-                $stmt->fetch();
-                $returnedShips = $ships;
-                $stmt->free_result();
-            }
-            return $returnedShips;
-        }catch(Exception $e){
-           return '';
-        }
     }
 }
 

@@ -1,5 +1,5 @@
 <?php
-DEFINE('VERSION', 1.7);
+DEFINE('VERSION', 3.7);
 function includeHeader($additionalFiles = array())
 {
     $addFileList = '';
@@ -40,6 +40,4 @@ function includeFooter($additionalFiles = array()){
         . '</body>' . "\r\n"
         . '</html>' . "\r\n";
 }
-
-
 ?>

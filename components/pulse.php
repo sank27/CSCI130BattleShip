@@ -71,10 +71,12 @@ class Pulse {
                 }
                 $stmt->free_result();
                 $response->data = $players;
+                $response->message = "Successfully fetch players";
             }
         }catch(Exception $e){
             $response->status = 422;
-            $response->data = $e->getMessage();
+            $response->data = '';
+            $response->message = $e->getMessage();
         }
         return $response;
     }

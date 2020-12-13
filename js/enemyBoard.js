@@ -3,6 +3,7 @@
 
 let selectedAttack = '';
 let attackEnabled = false;
+let existingAttacks = [];
 
 //create the enemy board
 function buildEnemyGrid() {
@@ -20,6 +21,35 @@ function buildEnemyGrid() {
     const gridString = grid.join(' ');
 
     $('#enemy-table').html(gridString);
+}
+
+function getExistingAttacks(){
+    if (currentGame){
+        $.post(`${routerEndPoint}getattacks`, {gameId: currentGame}, (data) => {
+            if (data.status == 200) {
+                existingAttacks = data.data;
+                displayExistingAttacks();
+            }
+        }, 'json');
+    }
+}
+
+function displayExistingAttacks(){
+    if (existingAttacks && existingAttacks.length > 0) {
+        existingAttacks.forEach(singlePosition => {
+            const positions = singlePosition.attack.split('-');
+            const row = positions[0];
+            const column = positions[1];
+            const position = `#enemy-table #${row}-${column}`;
+            const hit = singlePosition.hit ? true : false;
+            placeAttack(position, hit);
+        });
+    }
+}
+
+function placeAttack(cell, hit){
+    const classCell = hit ? 'success-attack' : 'did-attack';
+    $(cell).addClass(classCell);
 }
 
 function displayAvailableAttacks() {
@@ -75,13 +105,58 @@ function handleAttackClick(e){
     $(cell).removeClass('attackCell');
     attackEnabled = false;
 
-    //send the attack to the backend and wait for response
-    console.log(currentGame);
+    //send gameid, attack coords
+    const attack = $(cell).attr('id');
+    $.post(`${routerEndPoint}attackopponent`, {gameId: currentGame, attack: attack}, (data) => {
+        console.log(data);
+        if (data.status == 200) {
+            if (data.data.success){
+                $(cell).removeClass('did-attack');
+                $(cell).addClass('success-attack');
+            }
+            //restart turn system
+            hideEnemyBoard();
+
+            $('#available-attacks .attacks').each((key, value)=> {
+                $(value).removeClass('highlighted-attack');
+            });
+            //remove torpedo class
+            otherPlayerTurn();
+
+            //disable the attack
+            myTurn = false;
+            startAwaitTurn();
+        } else {
+            showMessage(data.message);
+        }
+        //if the cell hit the opponent ship change the color to yellow
+    },'json');
+}
+
+function setPlayerTurn(){
+    $('#turn-placement').html('It is your turn, please pick an attack');
+    $('#turn-placement').removeClass();
+    $('#turn-placement').addClass('alert alert-success');
+}
+
+function otherPlayerTurn(){
+    $('#turn-placement').html('It is your opponent\'s turn, please wait');
+    $('#turn-placement').removeClass();
+    $('#turn-placement').addClass('alert alert-danger');
 }
 
 function hideEnemyBoard(){
     $('#enemy-board').fadeTo('slow',.6);
-    $('#enemy-board').append('<div id="hide-enemy-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
+    //see if it exists
+    const hideBoard = $(document).find('#hide-enemy-board');
+    if(hideBoard.length == 0) {
+        $('#enemy-board').append('<div id="hide-enemy-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
+    }
+}
+
+function enableEnemyBoard(){
+    $('#enemy-board').fadeTo('slow',1);
+    $('#hide-enemy-board').remove();
 }
 
 //after an attack is sent to the backend, check every 1/2 second for a response
@@ -106,13 +181,16 @@ $(document).on("click",".attackCell", function(e){
 
 $(document).ready(function() {
     //wait for the gameid to be populated
-    let existCondition = setInterval(function() {
+    let existEnemyCondition = setInterval(function() {
         if (currentGame && currentGame > 0) {
             console.log("Game Exists!");
-            clearInterval(existCondition);
+            clearInterval(existEnemyCondition);
             initializeEnemyBoard();
+            getExistingAttacks();
         }
     }, 100); // check every 100ms
+
+    //wait for my turn
 
     hideEnemyBoard();
 });

@@ -1,7 +1,6 @@
 <?php
 include_once('components/functions.php');
-$additionalCss = array('css/universal.css','css/styles.css');
-echo includeHeader($additionalCss);
+echo includeHeader();
 include_once('components/auth.php');
 include_once('components/header.php');
 //decided to separate the header from the other pieces

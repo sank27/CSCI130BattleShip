@@ -1,6 +1,6 @@
 <?php
 include_once('components/functions.php');
-$additionalCss = array('css/universal.css','css/login.css');
+$additionalCss = array('css/login.css');
 echo includeHeader($additionalCss);
 ?>
     <div class="container">

@@ -14,10 +14,50 @@ function buildPlayerGrid(){
     $('#player-table').html(gridString);
 }
 
+function updateShips(){
+    $.post(`${routerEndPoint}getships`, {gameId: currentGame}, (data) => {
+        if (data.status == 200) {
+            const uncleanData = data.data ? JSON.parse(data.data) : [];
+            for (const [key, value] of Object.entries(uncleanData)) {
+                placedShips.push(value);
+            }
+            displayAvailableShips();
+            displayPlacedShips();
+            hidePlayerBoard();
+            displayGameStartText();
+        }
+    }, 'json');
+}
+
 function getShips() {
     //get the ships from the backend
-    //if there are no ships put in all the ships
-    ships = staticShips;
+    if (currentGame){
+        $.post(`${routerEndPoint}getships`, {gameId: currentGame}, (data) => {
+            if (data.status == 200) {
+                const uncleanData = data.data ? JSON.parse(data.data) : [];
+                for (const [key, value] of Object.entries(uncleanData)) {
+                    placedShips.push(value);
+                }
+                //sees placed ships as objects
+                if (placedShips && placedShips.length > 0) {
+                    displayAvailableShips();
+                    displayPlacedShips();
+                    hidePlayerBoard();
+                    displayGameStartText();
+                    startAwaitTurn();
+                } else {
+                    ships = staticShips;
+                    displayAvailableShips();
+                    displayPlacedShips();
+                }
+            }
+        }, 'json');
+        //get the ships
+    }else{
+        ships = staticShips;
+        displayAvailableShips();
+        displayPlacedShips();
+    }
 }
 
 function displayAvailableShips() {
@@ -64,7 +104,7 @@ function addShipToGrid(e){
         const successfulVerticalCheck = directionCheck(row);
         if (!successfulVerticalCheck) {
             //Display some error
-            showMessage('You cannot place a ship there (Off the bottom of the grid)');
+            showMessage('You cannot place a ship there (Off the bottom of the grid)', MESSAGETYPE.POSITIVE);
             return;
         }
     }
@@ -72,7 +112,7 @@ function addShipToGrid(e){
     if (direction === DIRECTIONS.HORIZONTAL) {
         const successfulHorizontalCheck = directionCheck(column)
         if (!successfulHorizontalCheck) {
-            showMessage('You cannot place a ship there (Off the edge of the grid)');
+            showMessage('You cannot place a ship there (Off the edge of the grid)', MESSAGETYPE.POSITIVE);
             return;
         }
     }
@@ -80,7 +120,7 @@ function addShipToGrid(e){
     //ship check
     const successfulShipCheck = shipCheck(row, column, direction);
     if (!successfulShipCheck){
-        showMessage('You cannot place a ship on top of another ship');
+        showMessage('You cannot place a ship on top of another ship', MESSAGETYPE.POSITIVE);
         return;
     }
 
@@ -145,16 +185,36 @@ function shipCheck(row, column, direction){
 }
 
 function displayPlacedShips() {
-    placedShips.forEach(ship => {
-        const slots = ship.slots;
-        slots.forEach(singlePosition =>{
-            const positions = singlePosition.split('|');
-            const row = positions[0];
-            const column = positions[1];
-            const position = `#${row}-${column}`;
-            placeCell(position, ship);
+    if (placedShips && placedShips.length > 0) {
+        placedShips.forEach(ship => {
+            const slots = ship && ship.slots;
+            const hits = ship && ship.hits;
+            if (slots) {
+                slots.forEach(singlePosition => {
+                    const positions = singlePosition.split('|');
+                    const row = positions[0];
+                    const column = positions[1];
+                    const position = `#${row}-${column}`;
+                    placeCell(position, ship);
+                });
+            }
+
+            if (hits) {
+                //deal with hits
+                hits.forEach(singlePosition => {
+                    const positions = singlePosition.split('|');
+                    const row = positions[0];
+                    const column = positions[1];
+                    const position = `#player-table #${row}-${column}`;
+                    hitCell(position);
+                });
+            }
         });
-    });
+    }
+}
+
+function hitCell(cell){
+    $(cell).css("background-color","red");
 }
 
 function placeCell(cell, ship){
@@ -178,16 +238,13 @@ function resetDirection(){
     $('.direction-choice').append('<div id="hideDirection" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
 }
 
-function showMessage(message){
-    $('#message').html(message);
-    $('#message').addClass('alert alert-danger');
-    $('#shipModal').modal('show')
-}
-
 function hidePlayerBoard() {
     $('#player-board').fadeTo('slow',.6);
-    $('#player-board').append('<div id="hide-player-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
-    $('#game-start').remove();
+    const hideBoard = $(document).find('#hide-player-board');
+    if(hideBoard.length == 0) {
+        $('#player-board').append('<div id="hide-player-board" style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
+        $('#game-start').remove();
+    }
 }
 
 function startGame() {
@@ -212,18 +269,6 @@ function startGame() {
                 showMessage(data.data, MESSAGETYPE.NEGATIVE);
             }
         }, 'json');
-
-
-    //ship - shipcheck
-    //if both ships are in the database, start the game
-
-    //once the game it started, create a timer to
-    //randomly pick a player
-    //inform the player
-}
-
-function continueGame(){
-    hidePlayerBoard();
 }
 
 function removeShipFromGrid(){
@@ -239,8 +284,6 @@ function initializePlayerBoard() {
     try {
         buildPlayerGrid();
         getShips();
-        displayAvailableShips();
-        displayPlacedShips();
         resetForm();
 
         $(document).on('click', '.available-ship', function (e) {
@@ -268,10 +311,10 @@ $(document).ready(function() {
     });
 
     //wait for the gameid to be populated
-    let existCondition = setInterval(function() {
+    let existPlayerCondition = setInterval(function() {
         if (currentGame && currentGame > 0) {
             console.log("Game Exists!");
-            clearInterval(existCondition);
+            clearInterval(existPlayerCondition);
             initializePlayerBoard();
         }
     }, 100); // check every 100ms

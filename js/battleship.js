@@ -8,6 +8,7 @@ function checkForExistingGames() {
             currentGame = data.data.id;
             currentTurn = data.data.turn;
             //get the opponent info
+
         } else {
             //no current game? redirect to home
             window.location.href = "home.php";
